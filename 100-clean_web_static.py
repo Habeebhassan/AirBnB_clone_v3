@@ -1,7 +1,5 @@
 #!/usr/bin/python3
-'''setup and shared archive to your web servers, using deploy():
-'''
-
+'''Remove obsolete archives, using do_clean function'''
 import os
 from datetime import datetime
 from fabric.api import env, local, put, run, runs_once
@@ -35,7 +33,7 @@ def do_pack():
 
 
 def do_deploy(archive_path):
-    """Deploys the static files to the host server.
+    """Deploy static files to the host servers.
     Args:
         archive_path (str): The path to the archived static files.
     """
@@ -54,7 +52,7 @@ def do_deploy(archive_path):
         run("rm -rf {}web_static".format(folder_path))
         run("rm -rf /data/web_static/current")
         run("ln -s {} /data/web_static/current".format(folder_path))
-        print('New version is UP!')
+        print('New version deployed!')
         success = True
     except Exception:
         success = False
@@ -62,7 +60,32 @@ def do_deploy(archive_path):
 
 
 def deploy():
-    """Deploy and archive the static files to the host servers.
+    """Deploys and archives the static files to the host servers.
     """
     archive_path = do_pack()
     return do_deploy(archive_path) if archive_path else False
+
+
+def do_clean(number=0):
+    """Removes obsolete archives of the static files.
+    Args:
+        number (Any): The number of archives to keep.
+    """
+    archives = os.listdir('versions/')
+    archives.sort(reverse=True)
+    start = int(number)
+    if not start:
+        start += 1
+    if start < len(archives):
+        archives = archives[start:]
+    else:
+        archives = []
+    for archive in archives:
+        os.unlink('versions/{}'.format(archive))
+    cmd_parts = [
+        "rm -rf $(",
+        "find /data/web_static/releases/ -maxdepth 1 -type d -iregex",
+        " '/data/web_static/releases/web_static_.*'",
+        " | sort -r | tr '\\n' ' ' | cut -d ' ' -f{}-)".format(start + 1)
+    ]
+    run(''.join(cmd_parts))
