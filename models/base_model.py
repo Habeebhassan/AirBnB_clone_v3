@@ -12,7 +12,7 @@ Base = declarative_base()
 
 class BaseModel(Base):
     """A base class for all models in our HBNB clone"""
-
+    __abstract__ = True
     id = Column(String(60), nullable=False, primary_key=True, unique=True)
     created_at = Column(DATETIME, nullable=False, default=datetime.utcnow())
     updated_at = Column(DATETIME, nullable=False, default=datetime.utcnow())
@@ -36,6 +36,10 @@ class BaseModel(Base):
                 self.created_at = datetime.now()
             if not hasattr(self, 'updated_at'):
                 self.updated_at = datetime.now()
+    
+    def User(BaseModel):
+        __tablename__ = 'users' # Table name in the database
+        name = COlumn(String(128), nullable=False)
 
     def __str__(self):
         """Returns a string representation of the instance"""
