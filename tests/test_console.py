@@ -13,7 +13,7 @@ import sqlalchemy
 from console import HBNBCommand
 from models import storage
 from models.user import User
-from tests import clear_stream
+from tests.utils import clear_stream
 
 
 class TestHBNBCommand(unittest.TestCase):
